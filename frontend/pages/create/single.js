@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
+import { ethers } from "ethers";
 import Link from "next/link";
 import { create } from "ipfs-http-client";
 import { useRouter } from "next/router";
@@ -16,7 +17,7 @@ import Market from "../../../artifacts/contracts/Marketplace.sol/Marketplace.jso
 const client = create("https://ipfs.infura.io:5001/api/v0");
 
 function single() {
-  const { account } = useContext(Web3Context);
+  const { provider } = useContext(Web3Context);
   const [formInput, setFormInput] = useState({
     price: "",
     name: "",
@@ -76,11 +77,11 @@ function single() {
   async function setupIPFS(file) {
     try {
       const result = await client.add(file, {
-        progress: (prog) => console.log(`File received: ${prog}`),
+        progress: (prog) => console.log(`Received: ${prog}`),
       });
-      const url = `https://ipfs.infura.io/ipfs/${result.path}`;
+      console.log(result);
+      const url = `https://ipfs.infura.io/ipfs/${result.cid}/${result.path}`;
       setFormInput({ ...formInput, fileUrl: url });
-      //setFileUrl(url);
     } catch (error) {
       console.log("Error uploading file: ", error);
     }
@@ -105,11 +106,13 @@ function single() {
   }
 
   async function createSale(url) {
+    const signer = provider.getSigner();
+
     /* First mint the item using SingleEditionNFT Contract */
     let contract = new ethers.Contract(
       singleEditionNFTAddress,
       ERC721NFT.abi,
-      account
+      signer
     );
     let transaction = await contract.createToken(url);
     let tx = await transaction.wait();
@@ -120,7 +123,7 @@ function single() {
     const price = ethers.utils.parseUnits(formInput.price, "ether");
 
     /* then list the item for sale on the marketplace using Marketplace contract */
-    contract = new ethers.Contract(nftMarketplaceAddress, Market.abi, account);
+    contract = new ethers.Contract(nftMarketplaceAddress, Market.abi, signer);
     let listingPrice = await contract.getListingPrice();
     listingPrice = listingPrice.toString();
 
@@ -182,7 +185,7 @@ function single() {
               className="flex flex-col space-y-8"
               onSubmit={validateInput}>
               <div className="flex flex-col space-y-2">
-                <div className="font-medium text-md">Upload files*</div>
+                <div className="font-medium text-md">Upload files</div>
 
                 <div
                   className="flex items-center justify-center w-full border-2 border-gray-200 border-dashed h-44"
@@ -202,7 +205,6 @@ function single() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round">
-                        {" "}
                         <path d="M2.5 2v6h6M21.5 22v-6h-6" />
                         <path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.2" />
                       </svg>
@@ -234,7 +236,7 @@ function single() {
               </div>
 
               <div className="flex flex-col space-y-2">
-                <div className="font-medium text-md">Name*</div>
+                <div className="font-medium text-md">Name</div>
                 <input
                   required
                   type="text"
@@ -247,7 +249,7 @@ function single() {
               </div>
 
               <div className="flex flex-col space-y-2">
-                <div className="font-medium text-md">Description*</div>
+                <div className="font-medium text-md">Description</div>
                 <input
                   required
                   type="text"
@@ -263,11 +265,10 @@ function single() {
               </div>
 
               <div className="flex flex-col space-y-2">
-                <div className="font-medium text-md">Price*</div>
+                <div className="font-medium text-md">Price</div>
                 <div className="flex items-center w-32">
                   <input
                     required
-                    type="number"
                     className="flex-1 upload-input bg-transparent truncate outline-none"
                     placeholder='e.g. "5'
                     onChange={(e) =>
@@ -278,15 +279,6 @@ function single() {
                 </div>
               </div>
 
-              <div className="flex flex-col space-y-2">
-                <div className="font-medium text-md">External URL</div>
-                <input
-                  type="text"
-                  className="upload-input bg-transparent truncate flex-auto outline-none"
-                  placeholder='e.g. "https://boredapeyachtclub.com/"'
-                />
-              </div>
-
               <button
                 onClick={createMarket}
                 className="p-4 bg-purple-400 text-white rounded-md text-lg cursor-pointer disabled:bg-gray-200 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
@@ -294,7 +286,8 @@ function single() {
                   !formInput.name ||
                   !formInput.description ||
                   !formInput.price ||
-                  !formInput.fileUrl
+                  !formInput.fileUrl ||
+                  isNaN(parseFloat(formInput.price))
                 }>
                 Review and Mint
               </button>

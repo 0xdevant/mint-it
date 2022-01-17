@@ -21,7 +21,7 @@ function header() {
 
         // Hardhat Local
         if (chainId === "0x7a69") {
-          contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+          contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 
           // Rinkeby
         } else if (chainId === "0x4") {
@@ -36,7 +36,7 @@ function header() {
           contractAddress = "";
         }
 
-        const signer = provider.getSigner(account);
+        const signer = provider.getSigner();
         const contract = new ethers.Contract(
           contractAddress,
           Marketplace.abi,
@@ -45,11 +45,11 @@ function header() {
 
         setProvider(provider);
         setContract(contract);
-        setAccount(signer._address);
+        setAccount(account);
       } else if (window.web3) {
-        console.log("Update MetaMask");
+        console.log("Please update your MetaMask");
       } else {
-        console.log("Enable MetaMask");
+        console.log("Please enable the MetaMask extension");
       }
     } catch (e) {
       console.log(e);
@@ -59,13 +59,9 @@ function header() {
   return (
     <div className="w-full p-5 flex align-middle shadow-md">
       <Link href="/">
-        <Image
-          src="/vercel.svg"
-          alt="MintIt Logo"
-          width={80}
-          height={24}
-          className="cursor-pointer"
-        />
+        <a className="flex items-center">
+          <Image src="/vercel.svg" alt="MintIt Logo" width={80} height={24} />
+        </a>
       </Link>
 
       <ul className="nav flex w-full">

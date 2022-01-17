@@ -1,17 +1,15 @@
 import { ethers } from "ethers";
 import { useEffect, useContext, useState } from "react";
+import { Web3Context } from "../components/web3Context";
 import axios from "axios";
 import Footer from "../components/footer";
 import styles from "../styles/Home.module.css";
-//import { Web3Context } from "../components/web3Context";
-
 import { nftMarketplaceAddress, singleEditionNFTAddress } from "../../config";
-
 import ERC721NFT from "../../artifacts/contracts/SingleEditionNFT.sol/SingleEditionNFT.json";
 import Market from "../../artifacts/contracts/Marketplace.sol/Marketplace.json";
 
 export default function Home() {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  //const { provider, account } = useContext(Web3Context);
   const [nfts, setNfts] = useState([]);
 
   useEffect(() => {
@@ -19,6 +17,7 @@ export default function Home() {
   }, []);
 
   async function loadNFTs() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const marketContract = new ethers.Contract(
       nftMarketplaceAddress,
       Market.abi,
@@ -51,13 +50,12 @@ export default function Home() {
     setNfts(items);
   }
   async function buyNft(nft) {
-    const [account] = await ethereum.request({
-      method: "eth_requestAccounts",
-    });
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
     const contract = new ethers.Contract(
       nftMarketplaceAddress,
       Market.abi,
-      account
+      signer
     );
 
     const price = ethers.utils.parseUnits(nft.price.toString(), "ether");
@@ -75,16 +73,16 @@ export default function Home() {
   return (
     <>
       <div className="container mx-auto">
-        <main className={styles.main}>
+        <main className="flex flex-col space-y-4 min-h-screen p-12 items-center justify-center">
           <h1 className="text-5xl">
             Discover, collect, and sell extraordinary NFTs
           </h1>
 
-          <p className={`${styles.description} text-gray-500`}>
+          <p className={`${styles.description} text-gray-400`}>
             MintIt is one of the world's simplest NFT marketplace
           </p>
 
-          <div className="flex items-center space-x-4 space-y-4">
+          <div className="flex items-center space-x-4 space-y-4 p-4">
             {!nfts.length && (
               <h3 className="text-purple-500 text-2xl font-bold mb-12">
                 No items available in the marketplace at the moment
@@ -95,24 +93,19 @@ export default function Home() {
               nfts.map((nft, i) => (
                 <div
                   key={i}
-                  className="border shadow rounded-xl overflow-hidden">
+                  className="border shadow rounded-xl overflow-hidden w-80">
                   <img src={nft.image} />
                   <div className="p-4">
-                    <p
-                      style={{ height: "64px" }}
-                      className="text-2xl font-semibold">
-                      {nft.name}
-                    </p>
+                    <p className="text-2xl font-semibold">{nft.name}</p>
                     <div style={{ height: "70px", overflow: "hidden" }}>
-                      <p className="text-gray-400">{nft.description}</p>
+                      <p className="text-gray-500">{nft.description}</p>
                     </div>
-                  </div>
-                  <div className="p-4 bg-black">
-                    <p className="text-2xl mb-4 font-bold text-white">
+
+                    <p className="text-xl mb-4 font-semibold">
                       {nft.price} ETH
                     </p>
                     <button
-                      className="w-full bg-purple-400 text-white font-bold p-4 rounded"
+                      className="w-full text-lg font-semibold p-2 text-purple-400 hover:text-white hover:bg-purple-500 rounded-full border border-purple-400"
                       onClick={() => buyNft(nft)}>
                       Buy
                     </button>
