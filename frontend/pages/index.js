@@ -86,6 +86,7 @@ export default function Home() {
     const transaction = await contract.createMarketSale(
       nft.isERC721 ? singleEditionNFTAddress : multipleEditionNFTAddress,
       nft.itemId,
+      nft.isERC721,
       {
         value: price,
       }

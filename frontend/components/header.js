@@ -62,9 +62,6 @@ function header() {
 
       <ul className="nav flex w-full">
         <div className="text-gray-500 flex items-center space-x-8 ml-auto">
-          {/*<li className="nav-item hover:text-gray-700">
-            <Link href="/explore">Explore</Link>
-          </li>*/}
           <li className="nav-item hover:text-gray-700">
             <Link href="/create">Create</Link>
           </li>

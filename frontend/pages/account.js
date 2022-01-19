@@ -21,14 +21,16 @@ function account() {
     ethers,
   } = useContext(Web3Context);
   const [ethBalance, setEthBalance] = useState(0);
-  const [nfts, setNfts] = useState([]);
+  const [ownNfts, setOwnNfts] = useState([]);
+  const [createdNfts, setCreatedNfts] = useState([]);
   const [sold, setSold] = useState([]);
 
   useEffect(() => {
-    loadNFTs();
+    loadCreatedNFTs();
+    loadOwnNFTs();
   }, []);
 
-  async function loadNFTs() {
+  async function loadCreatedNFTs() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const marketContract = new ethers.Contract(
       nftMarketplaceAddress,
@@ -75,7 +77,58 @@ function account() {
       /* create a filtered array of items that have been sold */
       const soldItems = items.filter((i) => i.sold);
       setSold(soldItems);
-      setNfts(items);
+      setCreatedNfts(items);
+    } catch (error) {
+      //no items available
+      console.log("No items yet");
+    }
+  }
+
+  async function loadOwnNFTs() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const marketContract = new ethers.Contract(
+      nftMarketplaceAddress,
+      Market.abi,
+      provider
+    );
+    const erc721TokenContract = new ethers.Contract(
+      singleEditionNFTAddress,
+      ERC721NFT.abi,
+      provider
+    );
+    const erc1155TokenContract = new ethers.Contract(
+      multipleEditionNFTAddress,
+      ERC1155NFT.abi,
+      provider
+    );
+    try {
+      const data = await marketContract.fetchMyNFTs();
+      console.log(data);
+      const items = await Promise.all(
+        data.map(async (i) => {
+          let tokenUri;
+          if (i.isERC721) {
+            tokenUri = await erc721TokenContract.tokenURI(i.tokenId);
+          } else {
+            tokenUri = await erc1155TokenContract.uri(i.tokenId);
+          }
+          const meta = await axios.get(tokenUri);
+          let price = ethers.utils.formatUnits(i.price.toString(), "ether");
+          let item = {
+            price,
+            itemId: i.itemId.toNumber(),
+            seller: i.seller,
+            owner: i.owner,
+            sold: i.sold,
+            image: meta.data.image,
+            name: meta.data.name,
+            description: meta.data.description,
+            isERC721: i.isERC721,
+          };
+          return item;
+        })
+      );
+      setOwnNfts(items);
     } catch (error) {
       //no items available
       console.log("No items yet");
@@ -122,6 +175,13 @@ function account() {
   useEffect(() => {
     connectWallet();
   }, []);
+
+  // Listens for a change in account and updates state
+  useEffect(() => {
+    ethereum.on("accountsChanged", () => {
+      setEthBalance(0);
+    });
+  });
   return (
     <>
       <div className="container p-4 space-y-4">
@@ -131,7 +191,7 @@ function account() {
         </h2>
         <div className="flex flex-col p-4 space-y-4">
           <h3 className="text-xl">NFTs you have created so far:</h3>
-          {!nfts.length && (
+          {!createdNfts.length && (
             <div className="container mx-auto text-2xl font-bold mb-12 p-4">
               None yet, go{" "}
               <Link href="/create">
@@ -143,8 +203,8 @@ function account() {
         </div>
 
         <div className="flex items-center space-x-4 space-y-4 p-4">
-          {nfts &&
-            nfts.map((nft, i) => (
+          {createdNfts &&
+            createdNfts.map((nft, i) => (
               <div
                 key={i}
                 className="border shadow rounded-xl overflow-hidden w-80">
@@ -180,6 +240,38 @@ function account() {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="flex flex-col p-4 space-y-4">
+          <h3 className="text-xl">NFTs you have:</h3>
+          {!ownNfts.length && (
+            <div className="container mx-auto text-2xl font-bold mb-12 p-4">
+              None yet, go{" "}
+              <Link href="/">
+                <span className="text-purple-500 cursor-pointer">buy</span>
+              </Link>{" "}
+              some for yourself!
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-4 space-y-4 p-4">
+          {ownNfts &&
+            ownNfts.map((nft, i) => (
+              <div
+                key={i}
+                className="border shadow rounded-xl overflow-hidden w-80">
+                <img src={nft.image} />
+                <div className="p-4">
+                  <p className="text-2xl font-semibold">{nft.name}</p>
+                  <div className="mb-4">
+                    <p className="text-gray-500">{nft.description}</p>
+                  </div>
+
+                  <p className="text-xl mb-4 font-semibold">{nft.price} ETH</p>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </>
