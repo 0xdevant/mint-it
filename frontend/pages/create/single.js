@@ -322,7 +322,7 @@ function single() {
                   !formInput.fileUrl ||
                   isNaN(parseFloat(formInput.price))
                 }>
-                Review and Mint
+                Mint and List
               </button>
             </form>
           </div>

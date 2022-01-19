@@ -341,7 +341,7 @@ function multiple() {
                   isNaN(parseFloat(formInput.price)) ||
                   isNaN(parseFloat(formInput.numOfEdition))
                 }>
-                Review and Mint
+                Mint and List
               </button>
             </form>
           </div>

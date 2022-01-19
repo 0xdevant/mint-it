@@ -21,7 +21,7 @@ function header() {
 
         // Hardhat Local
         if (chainId === "0x7a69") {
-          contractAddress = "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154";
+          contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
           // Rinkeby
         } else if (chainId === "0x4") {

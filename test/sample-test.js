@@ -8,23 +8,23 @@ describe("Marketplace", function () {
     await market.deployed();
     const marketAddress = market.address;
 
-    const NFT = await ethers.getContractFactory("NFT");
-    const nft = await NFT.deploy(marketAddress);
-    await nft.deployed();
-    const nftContractAddress = nft.address;
+    const MultipleEditionNFT = await ethers.getContractFactory("MultipleEditionNFT");
+    const erc1155nft = await MultipleEditionNFT.deploy(marketAddress);
+    await erc1155nft.deployed();
+    const erc1155nftContractAddress = erc1155nft.address;
 
     let listingPrice = await market.getListingPrice();
     listingPrice = listingPrice.toString();
 
     const auctionPrice = ethers.utils.parseUnits("1", "ether");
 
-    await nft.createToken("https://www.mytokenlocation.com");
-    await nft.createToken("https://www.mytokenlocation2.com");
+    await erc1155nft.createToken(10, "https://ipfs.infura.io/ipfs/QmW26XrnuYtSPkKhsZMtqan8QicAxNAAuQCqEPfeCGwNNt/json/1.json");
+    await erc1155nft.createToken(15, "https://ipfs.infura.io/ipfs/QmW26XrnuYtSPkKhsZMtqan8QicAxNAAuQCqEPfeCGwNNt/json/1.json");
 
-    await market.createMarketItem(nftContractAddress, 1, auctionPrice, {
+    await market.createMarketItem(erc1155nftContractAddress, 1, auctionPrice, false, {
       value: listingPrice,
     });
-    await market.createMarketItem(nftContractAddress, 2, auctionPrice, {
+    await market.createMarketItem(erc1155nftContractAddress, 2, auctionPrice, false, {
       value: listingPrice,
     });
 
@@ -32,12 +32,12 @@ describe("Marketplace", function () {
 
     await market
       .connect(buyerAddress)
-      .createMarketSale(nftContractAddress, 1, { value: auctionPrice });
+      .createMarketSale(erc1155nftContractAddress, 1, false, { value: auctionPrice });
 
     items = await market.fetchMarketItems();
     items = await Promise.all(
       items.map(async (i) => {
-        const tokenUri = await nft.tokenURI(i.tokenId);
+        const tokenUri = await erc1155nft.uri(i.tokenId);
         let item = {
           price: i.price.toString(),
           tokenId: i.tokenId.toString(),
@@ -48,6 +48,12 @@ describe("Marketplace", function () {
         return item;
       })
     );
-    console.log("items: ", items);
+    //console.log("items: ", items);
+
+    createdItems = await market.fetchItemsCreated()
+    console.log("createdItems: ", createdItems);
+
+    mynftItems = await market.fetchMyNFTs()
+    console.log("my NFTs: ", mynftItems);
   });
 });
