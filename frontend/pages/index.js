@@ -70,7 +70,12 @@ export default function Home() {
   }
   async function buyNft(nft) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
+    //connect to wallet if not connected yet
+    await ethereum.request({
+      method: "eth_requestAccounts",
+    });
     const signer = provider.getSigner();
+
     const contract = new ethers.Contract(
       nftMarketplaceAddress,
       Market.abi,
@@ -79,7 +84,7 @@ export default function Home() {
 
     const price = ethers.utils.parseUnits(nft.price.toString(), "ether");
     const transaction = await contract.createMarketSale(
-      singleEditionNFTAddress,
+      nft.isERC721 ? singleEditionNFTAddress : multipleEditionNFTAddress,
       nft.itemId,
       {
         value: price,

@@ -135,7 +135,7 @@ function account() {
             <div className="container mx-auto text-2xl font-bold mb-12 p-4">
               None yet, go{" "}
               <Link href="/create">
-                <span className="text-purple-500">mint</span>
+                <span className="text-purple-500 cursor-pointer">mint</span>
               </Link>{" "}
               some for yourself!
             </div>
