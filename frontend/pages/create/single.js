@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
-import { ethers } from "ethers";
 import Link from "next/link";
 import { create } from "ipfs-http-client";
 import { useRouter } from "next/router";
@@ -14,16 +13,21 @@ import {
 import ERC721NFT from "../../../artifacts/contracts/SingleEditionNFT.sol/SingleEditionNFT.json";
 import Market from "../../../artifacts/contracts/Marketplace.sol/Marketplace.json";
 
-const client = create("https://ipfs.infura.io:5001/api/v0");
+const client = create({
+  host: "ipfs.infura.io",
+  protocol: "https",
+  port: "5001",
+});
 
 function single() {
-  const { provider } = useContext(Web3Context);
+  const { ethers } = useContext(Web3Context);
   const [formInput, setFormInput] = useState({
     price: "",
     name: "",
     description: "",
     fileUrl: "",
   });
+  const [formError, setFormError] = useState("");
   const router = useRouter();
 
   /* Dropzone settings */
@@ -45,7 +49,6 @@ function single() {
           })
         )
       );
-
       acceptedFiles.map((file) => {
         setupIPFS(file);
       });
@@ -75,29 +78,47 @@ function single() {
   );
 
   async function setupIPFS(file) {
+    const data = {
+      path: `erc721/images/${file.name}`,
+      content: file,
+    };
     try {
-      const result = await client.add(file, {
-        progress: (prog) => console.log(`Received: ${prog}`),
+      const result = await client.add(data, {
+        progress: (prog) => console.log(`File Received: ${prog}`),
       });
-      console.log(result);
-      const url = `https://ipfs.infura.io/ipfs/${result.cid}/${result.path}`;
+      const url = `https://ipfs.infura.io/ipfs/${result.cid}/images/${file.name}`;
       setFormInput({ ...formInput, fileUrl: url });
     } catch (error) {
       console.log("Error uploading file: ", error);
     }
   }
   async function createMarket() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    /* fetch the token id using MultipleEditionNFT Contract */
+    let contract = new ethers.Contract(
+      singleEditionNFTAddress,
+      ERC721NFT.abi,
+      provider
+    );
+    const currentTokenId = await contract._getCurrentTokenID();
+    //convert tokenId from hex to decimal
+    currentTokenId = parseInt(currentTokenId, 16);
     const { name, description, price, fileUrl } = formInput;
     if (!name || !description || !price || !fileUrl) return;
-    /* first, upload to IPFS */
-    const data = JSON.stringify({
-      name,
-      description,
-      image: fileUrl,
-    });
+    /* first, upload metadata json to IPFS */
+    const data = {
+      path: `/erc721/json/${currentTokenId + 1}.json`,
+      content: JSON.stringify({
+        name,
+        description,
+        image: fileUrl,
+      }),
+    };
     try {
       const result = await client.add(data);
-      const url = `https://ipfs.infura.io/ipfs/${result.path}`;
+      const url = `https://ipfs.infura.io/ipfs/${result.cid}/json/${
+        currentTokenId + 1
+      }.json`;
       /* after file is uploaded to IPFS, pass the URL to save it on Ethereum */
       createSale(url);
     } catch (error) {
@@ -106,6 +127,11 @@ function single() {
   }
 
   async function createSale(url) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    //connect to wallet if not connected yet
+    await ethereum.request({
+      method: "eth_requestAccounts",
+    });
     const signer = provider.getSigner();
 
     /* First mint the item using SingleEditionNFT Contract */
@@ -116,6 +142,7 @@ function single() {
     );
     let transaction = await contract.createToken(url);
     let tx = await transaction.wait();
+    console.log(tx);
     let event = tx.events[0];
     let value = event.args[2];
     let tokenId = value.toNumber();
@@ -131,6 +158,7 @@ function single() {
       singleEditionNFTAddress,
       tokenId,
       price,
+      true, //for ERC721 token
       {
         value: listingPrice,
       }
@@ -143,8 +171,8 @@ function single() {
     e.preventDefault();
     const requiredInputs = document.querySelectorAll("input:required");
     requiredInputs.forEach((input) => {
-      if (input.value != "") {
-        console.log("Empty fields");
+      if (input.value == "") {
+        setFormError("Please fill in all the fields.");
         return false;
       }
     });
@@ -193,8 +221,8 @@ function single() {
                   <div
                     className="flex items-center justify-center w-full h-full cursor-pointer"
                     tabIndex="0">
-                    <input {...getInputProps()} required />
-                    {files.length > 0 ? (
+                    <input required {...getInputProps()} />
+                    {formInput.fileUrl ? (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -279,9 +307,14 @@ function single() {
                 </div>
               </div>
 
+              <div
+                className={`text-red-500 ${!formError ? "hidden" : "block"}`}>
+                {formError}
+              </div>
+
               <button
                 onClick={createMarket}
-                className="p-4 bg-purple-400 text-white rounded-md text-lg cursor-pointer disabled:bg-gray-200 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className="p-4 bg-purple-400 text-white rounded-md text-lg cursor-pointer disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                 disabled={
                   !formInput.name ||
                   !formInput.description ||

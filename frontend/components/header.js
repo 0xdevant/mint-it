@@ -6,7 +6,7 @@ import { Web3Context } from "./web3Context";
 import Marketplace from "../../artifacts/contracts/Marketplace.sol/Marketplace.json";
 
 function header() {
-  const { setContract, setProvider, ethers, setAccount, account } =
+  const { setProvider, setContract, setAccount, ethers, account } =
     useContext(Web3Context);
 
   async function connectWallet() {
@@ -21,14 +21,10 @@ function header() {
 
         // Hardhat Local
         if (chainId === "0x7a69") {
-          contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+          contractAddress = "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154";
 
           // Rinkeby
         } else if (chainId === "0x4") {
-          contractAddress = "";
-
-          // Mainnet
-        } else if (chainId === "0x1") {
           contractAddress = "";
 
           // Ropsten
@@ -36,11 +32,11 @@ function header() {
           contractAddress = "";
         }
 
-        const signer = provider.getSigner();
+        //connect to read-only marketplace contract
         const contract = new ethers.Contract(
           contractAddress,
           Marketplace.abi,
-          signer
+          provider
         );
 
         setProvider(provider);
@@ -66,9 +62,9 @@ function header() {
 
       <ul className="nav flex w-full">
         <div className="text-gray-500 flex items-center space-x-8 ml-auto">
-          <li className="nav-item hover:text-gray-700">
+          {/*<li className="nav-item hover:text-gray-700">
             <Link href="/explore">Explore</Link>
-          </li>
+          </li>*/}
           <li className="nav-item hover:text-gray-700">
             <Link href="/create">Create</Link>
           </li>

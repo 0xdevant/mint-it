@@ -4,6 +4,7 @@ pragma solidity ^0.8.3;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 import "hardhat/console.sol";
 
@@ -27,6 +28,7 @@ contract Marketplace is ReentrancyGuard {
         address payable owner;
         uint256 price;
         bool sold;
+        bool isERC721;
     }
 
     mapping(uint256 => MarketItem) private idToMarketItem;
@@ -38,7 +40,8 @@ contract Marketplace is ReentrancyGuard {
         address seller,
         address owner,
         uint256 price,
-        bool sold
+        bool sold,
+        bool isERC721
     );
 
     /* Returns the listing price of the contract */
@@ -50,7 +53,8 @@ contract Marketplace is ReentrancyGuard {
     function createMarketItem(
         address nftContract,
         uint256 tokenId,
-        uint256 price
+        uint256 price,
+        bool isERC721
     ) public payable nonReentrant {
         require(price > 0, "Price must be at least 1 wei");
         require(
@@ -68,10 +72,25 @@ contract Marketplace is ReentrancyGuard {
             payable(msg.sender),
             payable(address(0)),
             price,
-            false
+            false,
+            isERC721
         );
 
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+        if (isERC721) {
+            IERC721(nftContract).transferFrom(
+                msg.sender,
+                address(this),
+                tokenId
+            );
+        } else {
+            IERC1155(nftContract).safeTransferFrom(
+                msg.sender,
+                address(this),
+                tokenId,
+                1,
+                ""
+            );
+        }
 
         emit MarketItemCreated(
             itemId,
@@ -80,17 +99,18 @@ contract Marketplace is ReentrancyGuard {
             msg.sender,
             address(0),
             price,
-            false
+            false,
+            isERC721
         );
     }
 
     /* Creates the sale of a marketplace item */
     /* Transfers ownership of the item, as well as funds between parties */
-    function createMarketSale(address nftContract, uint256 itemId)
-        public
-        payable
-        nonReentrant
-    {
+    function createMarketSale(
+        address nftContract,
+        uint256 itemId,
+        bool isERC721
+    ) public payable nonReentrant {
         uint256 price = idToMarketItem[itemId].price;
         uint256 tokenId = idToMarketItem[itemId].tokenId;
         require(
@@ -99,7 +119,22 @@ contract Marketplace is ReentrancyGuard {
         );
 
         idToMarketItem[itemId].seller.transfer(msg.value);
-        IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+
+        if (isERC721) {
+            IERC721(nftContract).transferFrom(
+                address(this),
+                msg.sender,
+                tokenId
+            );
+        } else {
+            IERC1155(nftContract).safeTransferFrom(
+                address(this),
+                msg.sender,
+                tokenId,
+                1,
+                ""
+            );
+        }
         idToMarketItem[itemId].owner = payable(msg.sender);
         idToMarketItem[itemId].sold = true;
         _itemsSold.increment();

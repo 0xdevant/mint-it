@@ -25,4 +25,12 @@ contract SingleEditionNFT is ERC721URIStorage {
         setApprovalForAll(contractAddress, true);
         return newItemId;
     }
+
+    /**
+     * @dev calculates the next token ID based on value of tokenIds
+     * @return uint256 for the next token ID
+     */
+    function _getCurrentTokenID() public view returns (uint256) {
+        return tokenIds.current();
+    }
 }

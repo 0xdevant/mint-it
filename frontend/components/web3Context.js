@@ -7,8 +7,8 @@ export const Web3Context = createContext();
 const oneEther = ethers.BigNumber.from("1000000000000000000");
 
 const Web3Provider = ({ children }) => {
-  const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
+  const [contract, setContract] = useState(null);
   const [account, setAccount] = useState("");
 
   // Listens for a change in account and updates state
@@ -18,7 +18,7 @@ const Web3Provider = ({ children }) => {
   });
 
   function newAccount(accounts) {
-    setContract(contract.connect(provider.getSigner(accounts[0])));
+    //setContract(contract.connect(provider.getSigner()));
     setAccount(accounts[0]);
   }
 
@@ -27,20 +27,15 @@ const Web3Provider = ({ children }) => {
       //detect metamask provider
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-
         const chainId = await ethereum.request({ method: "eth_chainId" });
         let contractAddress;
 
         // Hardhat Local
         if (chainId === "0x7a69") {
-          contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+          contractAddress = "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154";
 
           // Rinkeby
         } else if (chainId === "0x4") {
-          contractAddress = "";
-
-          // Mainnet
-        } else if (chainId === "0x1") {
           contractAddress = "";
 
           // Ropsten
@@ -49,15 +44,25 @@ const Web3Provider = ({ children }) => {
         }
 
         const signer = provider.getSigner();
-        const contract = new ethers.Contract(
-          contractAddress,
-          Marketplace.abi,
-          signer.address
-        );
+        const account = await signer?.getAddress().catch((err) => {
+          throw "No account is connected yet.";
+        });
+
+        //connect to read-only marketplace contract
+        let contract;
+        try {
+          contract = new ethers.Contract(
+            contractAddress,
+            Marketplace.abi,
+            provider
+          );
+        } catch (err) {
+          throw "No valid contract instance can be created on this network.";
+        }
 
         setProvider(provider);
         setContract(contract);
-        setAccount(signer.address);
+        setAccount(account);
       } else if (window.web3) {
         console.log("Please update your MetaMask");
       } else {
