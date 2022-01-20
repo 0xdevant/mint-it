@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-function create() {
+function Create() {
   return (
     <>
       <div className="min-h-screen grid place-items-center container mx-auto p-4">
@@ -44,4 +44,4 @@ function create() {
   );
 }
 
-export default create;
+export default Create;

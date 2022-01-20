@@ -19,7 +19,7 @@ const ipfs = create({
   port: "5001",
 });
 
-function multiple() {
+function Multiple() {
   const { ethers } = useContext(Web3Context);
   const [formInput, setFormInput] = useState({
     price: "",
@@ -29,6 +29,7 @@ function multiple() {
     fileUrl: "",
   });
   const [formError, setFormError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   /* Dropzone settings */
@@ -55,8 +56,8 @@ function multiple() {
       });
     },
   });
-  const fileRejectionItems = fileRejections.map(({ file }) => (
-    <div className="my-2">
+  const fileRejectionItems = fileRejections.map(({ file }, index) => (
+    <div key={index} className="my-2">
       {file.path} - Please upload only JPG, JPEG, PNG, GIF, SVG.
     </div>
   ));
@@ -87,7 +88,7 @@ function multiple() {
       const result = await ipfs.add(data, {
         progress: (prog) => console.log(`File Received: ${prog}`),
       });
-      console.log(result);
+      //console.log(result);
       const url = `https://ipfs.infura.io/ipfs/${result.cid}/images/${file.name}`;
       setFormInput({ ...formInput, fileUrl: url });
     } catch (error) {
@@ -95,6 +96,7 @@ function multiple() {
     }
   }
   async function createMarket() {
+    setLoading(true);
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     /* fetch the token id using MultipleEditionNFT Contract */
     let contract = new ethers.Contract(
@@ -166,6 +168,7 @@ function multiple() {
       }
     );
     await transaction.wait();
+    setLoading(false);
     router.push("/");
   }
 
@@ -207,7 +210,7 @@ function multiple() {
           </div>
         </Link>
         <p className="text-4xl pb-10">Create multiple collectible</p>
-        <div className="flex">
+        <div className="flex flex-col md:flex-row space-y-4">
           <div className="flex-1">
             <form
               action=""
@@ -341,7 +344,25 @@ function multiple() {
                   isNaN(parseFloat(formInput.price)) ||
                   isNaN(parseFloat(formInput.numOfEdition))
                 }>
-                Mint and List
+                {loading ? (
+                  <svg
+                    className="animate-spin mx-auto h-6 w-6 text-white"
+                    viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  "Mint and List"
+                )}
               </button>
             </form>
           </div>
@@ -364,4 +385,4 @@ function multiple() {
   );
 }
 
-export default multiple;
+export default Multiple;

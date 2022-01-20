@@ -5,7 +5,7 @@ import { Web3Context } from "./web3Context";
 
 import Marketplace from "../../artifacts/contracts/Marketplace.sol/Marketplace.json";
 
-function header() {
+function Header() {
   const { setProvider, setContract, setAccount, ethers, account } =
     useContext(Web3Context);
 
@@ -23,13 +23,9 @@ function header() {
         if (chainId === "0x7a69") {
           contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
-          // Rinkeby
-        } else if (chainId === "0x4") {
-          contractAddress = "";
-
           // Ropsten
         } else if (chainId === "0x3") {
-          contractAddress = "";
+          contractAddress = "0x63e5D46D9e5eaE82561ae22Ee7dd05Aa052A207c";
         }
 
         //connect to read-only marketplace contract
@@ -56,7 +52,7 @@ function header() {
     <div className="w-full p-5 flex align-middle shadow-md">
       <Link href="/">
         <a className="flex items-center">
-          <Image src="/vercel.svg" alt="MintIt Logo" width={80} height={24} />
+          <Image src="/mintIt.png" alt="MintIt Logo" width={92} height={24} />
         </a>
       </Link>
 
@@ -67,6 +63,9 @@ function header() {
           </li>
           <li className="nav-item hover:text-gray-700">
             <Link href="/account">Account</Link>
+          </li>
+          <li className="nav-item hover:text-gray-700">
+            <Link href="/faq">FAQ</Link>
           </li>
           <li className="nav-item w-40">
             {account ? (
@@ -87,4 +86,4 @@ function header() {
   );
 }
 
-export default header;
+export default Header;

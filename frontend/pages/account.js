@@ -11,7 +11,7 @@ import ERC1155NFT from "../../artifacts/contracts/MultipleEditionNFT.sol/Multipl
 import Market from "../../artifacts/contracts/Marketplace.sol/Marketplace.json";
 import Link from "next/link";
 
-function account() {
+function Account() {
   const {
     setProvider,
     setContract,
@@ -21,7 +21,6 @@ function account() {
     account,
     ethers,
   } = useContext(Web3Context);
-  //const [ethBalance, setEthBalance] = useState(0);
   const [createdNfts, setCreatedNfts] = useState([]);
   const [ownNfts, setOwnNfts] = useState([]);
   const [sold, setSold] = useState([]);
@@ -32,28 +31,20 @@ function account() {
     loadOwnNFTs();
   }, []);
 
-    // Listens for a change in account and updates state
-    useEffect(() => {
-      ethereum.on("accountsChanged", (accounts) => {
-        setCreatedNfts([])
-        setOwnNfts([])
-        setSold([])
-        loadCreatedNFTs();
-        loadOwnNFTs();
-        /*if(!accounts.length) {
-          setEthBalance(0)
-          return;
-        }
-        console.log(accounts);
-        const balance = provider.getBalance(accounts[0]); 
-        console.log(balance);
-        setEthBalance(ethers.utils.formatEther(balance))*/
-      });
+  // Listens for a change in account and updates state
+  useEffect(() => {
+    ethereum.on("accountsChanged", (accounts) => {
+      setCreatedNfts([]);
+      setOwnNfts([]);
+      setSold([]);
+      loadCreatedNFTs();
+      loadOwnNFTs();
     });
+  });
 
   async function loadCreatedNFTs() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner()
+    const signer = provider.getSigner();
     const marketContract = new ethers.Contract(
       nftMarketplaceAddress,
       Market.abi,
@@ -82,9 +73,9 @@ function account() {
           }
           let meta;
           try {
-             meta = await axios.get(tokenUri)
-          } catch(err) {
-             meta = "";
+            meta = await axios.get(tokenUri);
+          } catch (err) {
+            meta = "";
           }
           let price = ethers.utils.formatUnits(i.price.toString(), "ether");
           let item = {
@@ -113,7 +104,7 @@ function account() {
 
   async function loadOwnNFTs() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner()
+    const signer = provider.getSigner();
     const marketContract = new ethers.Contract(
       nftMarketplaceAddress,
       Market.abi,
@@ -177,9 +168,9 @@ function account() {
         if (chainId === "0x7a69") {
           contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
-          // Rinkeby
-        } else if (chainId === "0x4") {
-          contractAddress = "";
+          // Ropsten
+        } else if (chainId === "0x3") {
+          contractAddress = "0x63e5D46D9e5eaE82561ae22Ee7dd05Aa052A207c";
         }
 
         const signer = provider.getSigner();
@@ -188,8 +179,6 @@ function account() {
         setProvider(provider);
         setContract(contract);
         setAccount(account);
-       // const balance = await provider.getBalance(account);
-        //setEthBalance(ethers.utils.formatEther(balance));
       } else if (window.web3) {
         console.log("Please update your MetaMask");
       } else {
@@ -202,12 +191,10 @@ function account() {
 
   return (
     <>
-      <div className="container p-12 space-y-4">
-        <h1 className="text-2xl">Welcome! Your wallet address is <b>{account}</b></h1>
-        {/*<h2 className="text-xl">
-          Your ETH balance is: {parseFloat(ethBalance).toFixed(4)}
-  </h2>*/}
-        <div className="flex flex-col p-4 space-y-4">
+      <div className="p-12 space-y-4">
+        <h1 className="text-2xl">Welcome! Your wallet address is:</h1>
+        <h2 className="text-md font-bold">{account}</h2>
+        <div className="flex flex-col justify-center p-4 space-y-4">
           <h3 className="text-xl">NFTs you have:</h3>
           {!ownNfts.length && (
             <div className="container mx-auto text-2xl font-bold mb-12 p-4">
@@ -218,58 +205,65 @@ function account() {
               some for yourself!
             </div>
           )}
-        </div>
 
-        <div className="flex justify-center items-center space-x-4 space-y-4 p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {ownNfts &&
-            ownNfts.map((nft, i) => (
-              <div
-                key={i}
-                className="border shadow rounded-xl overflow-hidden w-80">
-                <img src={nft.image} className="w-full mx-auto aspect-square" />
-                <div className="p-4">
-                  <p className="text-2xl font-semibold">{nft.name}</p>
-                  <div className="mb-4">
-                    <p className="text-gray-500">{nft.description}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {ownNfts &&
+              ownNfts.map((nft, i) => (
+                <div
+                  key={i}
+                  className="border shadow rounded-xl overflow-hidden w-80 sm:w-60">
+                  <div className="aspect-square w-76 h-76 grid place-items-center">
+                    <img src={nft.image} className="w-full mx-auto" />
                   </div>
-
-                  <p className="text-xl mb-4 font-semibold">{nft.price} ETH</p>
-                </div>
-              </div>
-            ))}
-            </div>
-        </div>
-
-        <div className="flex flex-col p-4 space-y-4">
-            {Boolean(sold.length) && (
-              <div>
-                <h3 className="text-xl pb-2">Items sold:</h3>
-                <div className="flex justify-center items-center space-x-4 space-y-4 p-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {sold.map((nft, i) => (
-                      <div
-                        key={i}
-                        className="border shadow rounded-xl overflow-hidden w-80">
-                        <img src={nft.image} className="w-full mx-auto aspect-square" />
-                        <div className="p-4">
-                          <p className="text-2xl font-semibold">{nft.name}</p>
-                          <div className="mb-4">
-                            <p className="text-gray-500">{nft.description}</p>
-                          </div>
-
-                          <p className="text-xl mb-4 font-semibold">{nft.price} ETH</p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="p-4">
+                    <p className="text-2xl font-semibold">{nft.name}</p>
+                    <div className="mb-4">
+                      <p className="text-gray-500 truncate">
+                        {nft.description}
+                      </p>
                     </div>
+
+                    <p className="text-xl mb-4 font-semibold">
+                      {nft.price} ETH
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
-          
+              ))}
+          </div>
         </div>
-        
-        <div className="flex flex-col p-4 space-y-4">
+
+        <div className="flex flex-col justify-center p-4 space-y-4">
+          {Boolean(sold.length) && (
+            <>
+              <h3 className="text-xl pb-2">Items sold:</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {sold.map((nft, i) => (
+                  <div
+                    key={i}
+                    className="border shadow rounded-xl overflow-hidden w-80 sm:w-60">
+                    <div className="aspect-square w-76 h-76 grid place-items-center">
+                      <img src={nft.image} className="w-full mx-auto" />
+                    </div>
+                    <div className="p-4">
+                      <p className="text-2xl font-semibold">{nft.name}</p>
+                      <div className="mb-4">
+                        <p className="text-gray-500 truncate">
+                          {nft.description}
+                        </p>
+                      </div>
+
+                      <p className="text-xl mb-4 font-semibold">
+                        {nft.price} ETH
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex flex-col justify-center p-4 space-y-4">
           <h3 className="text-xl">NFTs you have created so far:</h3>
           {!createdNfts.length && (
             <div className="container mx-auto text-2xl font-bold mb-12 p-4">
@@ -280,31 +274,33 @@ function account() {
               some for yourself!
             </div>
           )}
-          <div className="flex justify-center items-center space-x-4 space-y-4 p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {createdNfts &&
-                createdNfts.map((nft, i) => (
-                  <div
-                    key={i}
-                    className="border shadow rounded-xl overflow-hidden w-80">
-                    <img src={nft.image} className="w-full mx-auto aspect-square" />
-                    <div className="p-4">
-                      <p className="text-2xl font-semibold">{nft.name}</p>
-                      <div className="mb-4">
-                        <p className="text-gray-500">{nft.description}</p>
-                      </div>
 
-                      <p className="text-xl mb-4 font-semibold">{nft.price} ETH</p>
-                    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {createdNfts &&
+              createdNfts.map((nft, i) => (
+                <div
+                  key={i}
+                  className="border shadow rounded-xl overflow-hidden w-80 sm:w-60">
+                  <div className="aspect-square w-76 h-76 grid place-items-center">
+                    <img src={nft.image} className="w-full mx-auto" />
                   </div>
-                ))}
+                  <div className="p-4 space-y-4">
+                    <p className="text-2xl font-semibold">{nft.name}</p>
+                    <div>
+                      <p className="text-gray-500 truncate">
+                        {nft.description}
+                      </p>
+                    </div>
+
+                    <p className="text-xl font-semibold">{nft.price} ETH</p>
+                  </div>
                 </div>
+              ))}
           </div>
         </div>
-
       </div>
     </>
   );
 }
 
-export default account;
+export default Account;

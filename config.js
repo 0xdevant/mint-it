@@ -1,5 +1,5 @@
 
-  export const nftMarketplaceAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-  export const singleEditionNFTAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-  export const multipleEditionNFTAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+  export const nftMarketplaceAddress = "0x63e5D46D9e5eaE82561ae22Ee7dd05Aa052A207c"
+  export const singleEditionNFTAddress = "0x95C02E51314bE0717EDa4f782E4Aecc8d2Bddfb3"
+  export const multipleEditionNFTAddress = "0xd7611Cc3a5b1586Fefd1379a3b7Fc947BBaC2421"
   

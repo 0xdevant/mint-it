@@ -7,3 +7,10 @@
   background: transparent;
   width: 100%;
 }
+
+.faq-lists > li {
+  @apply flex flex-col space-y-2;
+}
+.faq-lists > li > h3 {
+  @apply text-xl font-semibold;
+}

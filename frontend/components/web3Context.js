@@ -34,13 +34,9 @@ const Web3Provider = ({ children }) => {
         if (chainId === "0x7a69") {
           contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
-          // Rinkeby
-        } else if (chainId === "0x4") {
-          contractAddress = "";
-
           // Ropsten
         } else if (chainId === "0x3") {
-          contractAddress = "";
+          contractAddress = "0x63e5D46D9e5eaE82561ae22Ee7dd05Aa052A207c";
         }
 
         const signer = provider.getSigner();
