@@ -1,42 +1,25 @@
-# Advanced Sample Hardhat Project
+# MintIt
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+# FAQs & How-tos
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+What is MintIt?
+MintIt is one of the world's simplest NFT marketplace where you can discover, collect, mint, and sell extraordinary NFTs.
 
-Try running some of the following tasks:
+How should I get started?
+If you are a creator, start off by going to Create and list your valuable NFTs and earn ETH from selling them!
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.js
-node scripts/deploy.js
-npx eslint '**/*.js'
-npx eslint '**/*.js' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
-```
+There are two token standards that you could choose from, the ERC-721 and the ERC-1155, in short, ERC-721 represents a single edition of a NFT, while ERC-1155 represents multiple editions of a NFT which means it can have more than one copy, technical-wise below are the differences they have:
 
-# Etherscan verification
+ERC-1155 permits the creation of both semi-fungible tokens and non-fungible tokens, whereas ERC-721 permits only the latter.
+In ERC-1155, smart contracts are linked to multiple URIs and do not store additional metadata (such as file names). In comparison, ERC-721 only supports static metadata stored directly on the smart contract for each token ID,, increasing deployment costs and limiting flexibility.
+ERC-1155’s smart contracts support an infinite number of tokens, whereas ERC-721 needs a new smart contract for each type of token.
+ERC-1155 also allows batch transfers of tokens, which can reduce transaction costs and times. With ERC-721, if you want to send multiple tokens, they happen individually.
+With that being said, the ERC-721 token standard kicked off the NFT craze. It was the first of its kind, and consequently, the most popular standard for creating these unique tokens.
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+If you are a collector, feel free to explore any NFTs you feel interested in homepage and add them to your collections by purchasing them!
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+What is the listing fee?
+There is a 0.025 ETH listing fee everytime you are minting and listing on our marketplace.
 
-```shell
-hardhat run --network ropsten scripts/deploy.js
-```
-
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
-
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
+What are gas fees on Ethereum?
+Gas fees are transaction fees on Ethereum. MintIt does not receive these fees and is not able to refund them.
