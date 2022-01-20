@@ -1,4 +1,4 @@
-#🍬MintIt✨
+# :candy:MintIt:stars:
 
 # FAQs & How-tos
 
