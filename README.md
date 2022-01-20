@@ -1,4 +1,4 @@
-# :candy:MintIt:stars:
+# :tickets:MintIt:stars:
 
 # FAQs & How-tos
 
