@@ -1,4 +1,4 @@
-# :tickets:MintIt:stars:
+# :rocket:MintIt:stars:
 
 # FAQs & How-tos
 
