@@ -1,4 +1,4 @@
-# MintIt
+#🍬MintIt✨
 
 # FAQs & How-tos
 
