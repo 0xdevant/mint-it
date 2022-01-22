@@ -1,4 +1,4 @@
-# :rocket:MintIt:stars:
+# :rocket: MintIt :stars:
 
 ## FAQs & How-tos
 
@@ -23,3 +23,30 @@ There is a 0.025 ETH listing fee everytime you are minting and listing on our ma
 
 ### **What are gas fees on Ethereum?**  
 Gas fees are transaction fees on Ethereum. MintIt does not receive these fees and is not able to refund them.
+ 
+  
+  
+## :racing_car: Quick start
+
+1.  **Install all the packages needed automatically.**
+
+    Enter the root directory and run the command below.
+
+    ```shell
+    # install all the packages needed automatically 
+    npm install
+    ```
+
+2.  **Enter the "Frontend" directory and install the packages as well.**
+
+    If everything is all set, it's good to go, les't start it up.
+
+    ```shell
+    cd /frontend
+    npm install
+    npm run dev
+    ```
+
+3.  **Start running!**
+
+    Your site is now running at `http://localhost:3000`!
