@@ -50,3 +50,7 @@ Gas fees are transaction fees on Ethereum. MintIt does not receive these fees an
 3.  **Start running!**
 
     Your site is now running at `http://localhost:3000`!
+    
+P.S.  **Contract deployment on Ropsten testnet**
+
+    npx hardhat run --network ropsten scripts/deploy.js
